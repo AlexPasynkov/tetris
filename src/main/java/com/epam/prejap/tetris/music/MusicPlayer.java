@@ -1,34 +1,79 @@
 package com.epam.prejap.tetris.music;
 
 import javax.sound.sampled.*;
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 public class MusicPlayer {
 
-    File file;
+    public static final String MAIN_THEME_URL = "tetris8bit.wav";
+
+    private Clip clip;
+    private AudioInputStream audioStream;
+  //  private final URL url;
+    public URL mainMusicTheme = MusicPlayer.class.getResource(MAIN_THEME_URL);
+
+    private MusicPlayer(MusicBuilder musicBuilder){
+        this.clip = musicBuilder.clip;
+        this.audioStream = musicBuilder.audioStream;
+      //  this.url = musicBuilder.url;
+    }
+
+
+
+    public static class MusicBuilder {
+            private Clip clip;
+            private AudioInputStream audioStream;
+         //   private URL url;
+
+            public MusicBuilder clip(Clip clip){
+                this.clip = clip;
+                return this;
+            }
+
+            public MusicBuilder audioStream(AudioInputStream audioInputStream){
+                this.audioStream = audioInputStream;
+                return this;
+            }
+
+            //public MusicBuilder url(final URL url){
+              //  this.url = url;
+                //return this;
+           // }
+
+            public MusicPlayer build(){
+                return new MusicPlayer(this);
+            }
+        }
+
     /**
      * This method is void and does not take any parameters
      * It is invoked in Tetris class, during game start of the game
      */
     public void playMusic(){
-        file = new File("src/main/resources/tetris8bit.wav");
-        AudioInputStream audioStream;
-        if(fileExists(file)){
-            try {
-                audioStream = AudioSystem.getAudioInputStream(file);
-                Clip clip = AudioSystem.getClip();
-                clip.open(audioStream);
-                clip.start();
-            } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("Error, please contact support for help");
+        try {
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(mainMusicTheme);
+            Clip clip = AudioSystem.getClip();
+        clip.open(audioStream);
+        clip.start();
+    } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
+        System.out.println(e.getMessage());
         }
     }
 
-    public boolean fileExists(File file){
-        return file.exists();
+    /**
+     * This method allows to pause the melody
+     */
+    public void pauseTheMusic(){
+        clip.stop();
     }
+
+    /**
+     * This method allows to start the melody from the beginning
+     */
+    public void restartMusicTheme(){
+        clip.setMicrosecondPosition(0);
+    }
+
+
 }
